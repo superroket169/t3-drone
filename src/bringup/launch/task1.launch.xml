@@ -2,9 +2,21 @@
   <!-- TODO: verify the Jetson UART device and baud rate wired to the Orange Cube -->
   <arg name="fcu_url" default="serial:///dev/ttyTHS0:921600"/>
 
+  <!-- "local": pole = [east, north] in meters from the takeoff point -->
+  <!-- "gps":   pole = [latitude, longitude] in degrees -->
+  <!-- Always write decimals, e.g. [0.0, 10.0], not [0, 10] -->
+  <arg name="coord_frame" default="local"/>
+  <arg name="pole1" default="[0.0, 10.0]"/>
+  <arg name="pole2" default="[0.0, 20.0]"/>
+
   <include file="$(find-pkg-share mavros)/launch/apm.launch">
     <arg name="fcu_url" value="$(var fcu_url)"/>
   </include>
 
-  <!-- TODO: start the task 1 mission node -->
+  <node pkg="mission" exec="task1" output="screen">
+    <param from="$(find-pkg-share bringup)/config/task1.yaml"/>
+    <param name="coord_frame" value="$(var coord_frame)"/>
+    <param name="pole1" value="$(var pole1)"/>
+    <param name="pole2" value="$(var pole2)"/>
+  </node>
 </launch>

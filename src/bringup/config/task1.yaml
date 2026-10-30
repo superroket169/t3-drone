@@ -1,1 +1,6 @@
-# TODO: fill in pole coordinates and flight altitude once the competition gives them
+task1:
+  ros__parameters:
+    altitude: 5.0            # meters above the takeoff point
+    points_per_circle: 16
+    reach_tolerance: 1.0     # meters; a waypoint counts as reached within this distance
+    laps: 2
