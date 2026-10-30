@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>mission</name>
+  <version>0.1.0</version>
+  <description>Task 1 (figure-eight) and task 2 (search and drop) flight logic over MAVROS</description>
+  <maintainer email="t3-drone@example.com">t3-drone</maintainer>
+  <license>TODO: choose a license</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>mavros_msgs</depend>
+  <depend>interfaces</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

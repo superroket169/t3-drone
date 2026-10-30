@@ -1,0 +1,10 @@
+<launch>
+  <!-- TODO: verify the Jetson UART device and baud rate wired to the Orange Cube -->
+  <arg name="fcu_url" default="serial:///dev/ttyTHS0:921600"/>
+
+  <include file="$(find-pkg-share mavros)/launch/apm.launch">
+    <arg name="fcu_url" value="$(var fcu_url)"/>
+  </include>
+
+  <!-- TODO: start the vision node and the task 2 mission node -->
+</launch>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>interfaces</name>
+  <version>0.1.0</version>
+  <description>Message definitions shared between t3-drone packages</description>
+  <maintainer email="t3-drone@example.com">t3-drone</maintainer>
+  <license>TODO: choose a license</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

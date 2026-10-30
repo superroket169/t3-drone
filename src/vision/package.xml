@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>vision</name>
+  <version>0.1.0</version>
+  <description>Camera input, red/blue square detection and annotated video stream</description>
+  <maintainer email="t3-drone@example.com">t3-drone</maintainer>
+  <license>TODO: choose a license</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>interfaces</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
