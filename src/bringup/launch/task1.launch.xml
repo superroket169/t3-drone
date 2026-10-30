@@ -9,8 +9,13 @@
   <arg name="pole1" default="[0.0, 10.0]"/>
   <arg name="pole2" default="[0.0, 20.0]"/>
 
-  <include file="$(find-pkg-share mavros)/launch/apm.launch">
+  <include file="$(find-pkg-share mavros)/launch/node.launch">
     <arg name="fcu_url" value="$(var fcu_url)"/>
+    <arg name="gcs_url" value=""/>
+    <arg name="tgt_system" value="1"/>
+    <arg name="tgt_component" value="1"/>
+    <arg name="pluginlists_yaml" value="$(find-pkg-share bringup)/config/mavros_plugins.yaml"/>
+    <arg name="config_yaml" value="$(find-pkg-share mavros)/launch/apm_config.yaml"/>
   </include>
 
   <node pkg="mission" exec="task1" output="screen">

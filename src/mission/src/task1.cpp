@@ -13,6 +13,7 @@
 #include "mavros_msgs/srv/command_bool.hpp"
 #include "mavros_msgs/srv/command_tol.hpp"
 #include "mavros_msgs/srv/set_mode.hpp"
+#include "mavros_msgs/srv/stream_rate.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 
@@ -22,6 +23,7 @@ using mavros_msgs::msg::State;
 using mavros_msgs::srv::CommandBool;
 using mavros_msgs::srv::CommandTOL;
 using mavros_msgs::srv::SetMode;
+using mavros_msgs::srv::StreamRate;
 using sensor_msgs::msg::NavSatFix;
 
 namespace {
@@ -122,7 +124,12 @@ public:
 
         auto qos = rclcpp::SensorDataQoS();
         state_sub_ = create_subscription<State>(
-            "mavros/state", qos, [this](const State & msg) { state_ = msg; });
+            "mavros/state", qos, [this](const State & msg) {
+                state_ = msg;
+                if (!msg.connected) {
+                    streams_requested_ = false;  // the FCU may reboot; ask again on reconnect
+                }
+            });
         pose_sub_ = create_subscription<PoseStamped>(
             "mavros/local_position/pose", qos, [this](const PoseStamped & msg) {
                 pose_ = msg;
@@ -139,6 +146,7 @@ public:
         mode_client_ = create_client<SetMode>("mavros/set_mode");
         arm_client_ = create_client<CommandBool>("mavros/cmd/arming");
         takeoff_client_ = create_client<CommandTOL>("mavros/cmd/takeoff");
+        stream_client_ = create_client<StreamRate>("mavros/set_stream_rate");
 
         timer_ = create_wall_timer(100ms, [this]() { step(); });
         RCLCPP_INFO(get_logger(), "Waiting for GUIDED mode to start");
@@ -173,6 +181,10 @@ private:
     void step() {
         if (busy_) {
             return;  // a service reply is pending
+        }
+        if (state_.connected && !streams_requested_) {
+            request_streams();
+            return;
         }
         if (needs_guided(phase_) && state_.mode != "GUIDED") {
             RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
@@ -278,6 +290,23 @@ private:
         phase_ = phase;
     }
 
+    // ArduPilot only sends position and attitude data after it is asked for it.
+    void request_streams() {
+        if (!stream_client_->service_is_ready()) {
+            return;
+        }
+        auto req = std::make_shared<StreamRate::Request>();
+        req->stream_id = StreamRate::Request::STREAM_ALL;
+        req->message_rate = 10;  // Hz
+        req->on_off = true;
+        busy_ = true;
+        stream_client_->async_send_request(
+            req, [this](rclcpp::Client<StreamRate>::SharedFuture) {
+                streams_requested_ = true;
+                busy_ = false;
+            });
+    }
+
     void request_mode(const std::string & mode) {
         if (!mode_client_->service_is_ready()) {
             return;
@@ -334,6 +363,7 @@ private:
     rclcpp::Client<SetMode>::SharedPtr mode_client_;
     rclcpp::Client<CommandBool>::SharedPtr arm_client_;
     rclcpp::Client<CommandTOL>::SharedPtr takeoff_client_;
+    rclcpp::Client<StreamRate>::SharedPtr stream_client_;
     rclcpp::TimerBase::SharedPtr timer_;
 
     // Latest data from MAVROS
@@ -342,6 +372,7 @@ private:
     NavSatFix fix_;
     bool have_pose_ = false;
     bool have_fix_ = false;
+    bool streams_requested_ = false;
 
     // Mission state
     Phase phase_ = Phase::WaitStart;

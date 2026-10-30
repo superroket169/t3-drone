@@ -1,0 +1,14 @@
+# Load only the MAVROS plugins the mission nodes use. The full ArduPilot set
+# loads dozens of plugins and overloads small machines.
+/**:
+  ros__parameters:
+    plugin_denylist: ['*']
+    plugin_allowlist:
+      - sys_status          # /mavros/state, set_mode, set_stream_rate
+      - sys_time
+      - command             # arming, takeoff, servo commands
+      - local_position      # /mavros/local_position/pose
+      - global_position     # /mavros/global_position/global
+      - setpoint_position   # /mavros/setpoint_position/local
+      - home_position
+      - imu
