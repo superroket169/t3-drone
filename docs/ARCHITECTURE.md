@@ -24,7 +24,7 @@ emergency.
    |  ROS 2 + MAVROS  |                   |  ArduCopter    |
    +------------------+                   +---+--------+---+
         ^                                     |        |
-        | CSI                         servo outputs   motors / ESCs
+        | CSI or USB                  servo outputs   motors / ESCs
      camera                           (payload release)
                                               ^
                                          RC receiver
@@ -79,21 +79,33 @@ task1, task2 --setpoints, services--> mavros
 The `task1` node steps through these phases:
 
 ```
-WaitConnect -> SetGuided -> Arm -> Takeoff -> FigureEight (x2) -> Return -> Land
+WaitStart -> Arm -> Takeoff -> Climb -> FollowRoute -> Land -> Done
 ```
 
-- The pole coordinates come from `task1.yaml`. The node generates the
-  figure-eight waypoints around them.
-- It sends the waypoints one at a time as position setpoints. It moves to the
-  next waypoint once the drone is within a tolerance of the current one.
+- **Poles:** given as launch arguments, either as `[east, north]` meters from
+  the takeoff point (`coord_frame:=local`) or as `[latitude, longitude]`
+  (`coord_frame:=gps`). GPS coordinates are converted to local meters around
+  the takeoff point.
+- **Figure-eight:** two tangent circles, one around each pole, each with a
+  radius of half the pole distance. They touch at the midpoint between the
+  poles. The first circle is flown counterclockwise, the second clockwise.
+  Each circle is split into `points_per_circle` waypoints.
+- **Route:** the drone flies to the figure-eight waypoint nearest to the
+  takeoff point, flies `laps` full figure-eights from there, ends at the same
+  waypoint, then flies back above the takeoff point.
+- **Following:** waypoints are sent one at a time as local position setpoints.
+  The next one is sent once the drone is within `reach_tolerance` of the
+  current one.
+- **Landing:** after the last waypoint, the node switches to ArduPilot's
+  `LAND` mode.
 
 ### task2 (`mission`)
 
 The `task2` node steps through these phases:
 
 ```
-WaitConnect -> SetGuided -> Arm -> Takeoff -> Search
-  -> Approach(red) -> Drop(red) -> Approach(blue) -> Drop(blue) -> Return -> Land
+WaitStart -> Arm -> Takeoff -> Climb -> Search
+  -> Approach(red) -> Drop(red) -> Approach(blue) -> Drop(blue) -> Return -> Land -> Done
 ```
 
 - **Search:** the node flies a lawnmower pattern over the search area defined
@@ -106,19 +118,31 @@ WaitConnect -> SetGuided -> Arm -> Takeoff -> Search
 
 ## Rules shared by both mission nodes
 
+- **GUIDED starts the flight.** After launch the node waits on the ground. It
+  arms and takes off only when the operator switches the Cube to GUIDED.
 - **Only command in GUIDED.** If `/mavros/state` shows any other mode, for
   example because the pilot took over, the node stops sending commands and
   waits. It must never fight the pilot.
-- **Hand the ending to ArduPilot.** Returning and landing use ArduPilot modes
-  (`RTL` or `LAND`), so a lost Jetson still ends in a safe landing.
+- **Land with ArduPilot.** The final landing uses ArduPilot's `LAND` mode, so
+  the Cube finishes it on its own.
+- **Ask for telemetry streams.** ArduPilot sends position and attitude data
+  only after it is asked. Each node calls `mavros/set_stream_rate` once MAVROS
+  is connected, and again after every reconnect.
 - **Use relative topic names in code** (`mavros/state`, not `/mavros/state`),
   so a launch file can move everything under a namespace.
 - **Use `rclcpp::SensorDataQoS()`** when subscribing to MAVROS sensor topics.
 
+## MAVROS
+
+The launch files start MAVROS with only the plugins the nodes use, listed in
+`src/bringup/config/mavros_plugins.yaml`. The full ArduPilot plugin set
+overloads the CPU, and MAVROS then loses the heartbeat and drops the link.
+Add a plugin to that list before using any topic or service it provides.
+
 ## Open decisions
 
-- TODO: camera model and its ROS driver (CSI on Orin Nano)
+- TODO: camera model and its ROS driver (the Orin has `/dev/video0` and `/dev/video1`; CSI or USB is unknown)
 - TODO: Jetson UART device and baud rate (`fcu_url` in the launch files)
 - TODO: how the annotated video reaches the ground station (e.g. GStreamer H.264 over UDP)
 - TODO: payload servo output channels and PWM values for open/closed
-- TODO: coordinate format the competition gives for the poles (lat/lon or local)
+- TODO: what the drone does if the Jetson dies in flight (GUIDED keeps hovering; the pilot must take over)

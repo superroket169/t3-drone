@@ -38,16 +38,22 @@ docs: camera setup on the Jetson
 ## Code
 
 - Write C++17, using `rclcpp`.
-- Keep each node in a single `.cpp` file inside its package's `src/` folder.
+- Indent with 4 spaces.
+- Keep each node in a single `.cpp` file inside its package's `src/` folder,
+  `main` included. Split the work into small functions; the timer callback
+  only picks the current phase and calls them.
 - Write topic and service names without a leading slash (`mavros/state`, not
   `/mavros/state`).
 - Subscribe to MAVROS sensor topics with `rclcpp::SensorDataQoS()`. Otherwise
   no messages arrive and no error is shown.
-- Put tunable values (altitudes, coordinates, thresholds) in the
-  `bringup/config/*.yaml` files, never in the code.
+- Put tunable values (altitudes, tolerances, thresholds) in the
+  `bringup/config/*.yaml` files, never in the code. Values that change on
+  every flight, like pole coordinates, are launch arguments.
+- Before using a new MAVROS topic or service, add its plugin to
+  `bringup/config/mavros_plugins.yaml`.
 - Mark unfinished work with `TODO:` and a short note.
 
 ## Testing
 
-Test every flight change in SITL before flying it on the real drone.
-See [README.md](README.md#run).
+Every flight change must pass `scripts/sitl_test.sh` before it flies on the
+real drone. See [README.md](README.md#simulation-sitl).
