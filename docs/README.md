@@ -1,6 +1,6 @@
 # t3-drone
 
-ROS 2 Humble software for the TEKNOFEST high school rotary-wing UAV competition.
+ROS 2 Jazzy software for the TEKNOFEST high school rotary-wing UAV competition.
 The software runs on a Jetson Orin Nano, which talks to an Orange Cube running
 ArduCopter through MAVROS. The tasks and the system layout are described in
 [ARCHITECTURE.md](ARCHITECTURE.md).
@@ -18,24 +18,24 @@ src/bringup/     launch files and config
 
 ## Setup
 
-ROS 2 Humble needs Ubuntu 22.04.
+ROS 2 Jazzy needs Ubuntu 24.04.
 
-### Ubuntu 22.04 or Jetson (JetPack 6)
+### Ubuntu 24.04 or Jetson (JetPack 7)
 
 ```bash
 scripts/setup.sh              # Jetson: no GUI tools
 scripts/setup.sh --desktop    # dev machine: with RViz and GUI tools
-echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 ```
 
 ### Other Linux distributions
 
-Run Ubuntu 22.04 in a [distrobox](https://distrobox.it/) container. The
+Run Ubuntu 24.04 in a [distrobox](https://distrobox.it/) container. The
 container shares your home directory and network with the host.
 
 ```bash
-distrobox create --name ros-humble --image docker.io/library/ubuntu:22.04
-distrobox enter ros-humble
+distrobox create --name ros-jazzy --image docker.io/library/ubuntu:24.04
+distrobox enter ros-jazzy
 scripts/setup.sh --desktop
 ```
 
