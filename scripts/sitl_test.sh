@@ -15,7 +15,7 @@ if [[ ! -x "$sitl_bin" ]]; then
     exit 1
 fi
 
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 
 cleanup() {
