@@ -4,7 +4,8 @@
   <version>0.1.0</version>
   <description>Launch files and configuration for each task flight</description>
   <maintainer email="t3-drone@example.com">t3-drone</maintainer>
-  <license>TODO: choose a license</license>
+  <license>MIT</license>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <exec_depend>launch_ros</exec_depend>

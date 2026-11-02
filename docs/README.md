@@ -135,3 +135,8 @@ ros2 topic echo /mavros/state    # print messages on a topic
 ros2 topic hz /camera/image_raw  # message rate
 ros2 node list                   # running nodes
 ```
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](../LICENSE-APACHE) or
+[MIT license](../LICENSE-MIT), at your option.
