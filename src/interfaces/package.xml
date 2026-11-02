@@ -3,7 +3,7 @@
   <name>interfaces</name>
   <version>0.1.0</version>
   <description>Message definitions shared between t3-drone packages</description>
-  <maintainer email="t3-drone@example.com">t3-drone</maintainer>
+  <maintainer email="isagullu2010@gmail.com">t3-drone</maintainer>
   <license>MIT</license>
   <license>Apache-2.0</license>
 
